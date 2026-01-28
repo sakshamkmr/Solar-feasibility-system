@@ -1,65 +1,192 @@
-import Image from "next/image";
+// app/page.tsx - Professional SolarSurya Landing Page (REAL ROUTES)
+import Link from 'next/link'; // 👈 NEW: Next.js Link
+import { SignInButton, UserButton } from "@clerk/nextjs";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ArrowRight, Sun, Zap, Award } from "lucide-react";
 
-export default function Home() {
+const features = [
+  { icon: Sun, title: "NASA Data", desc: "Real solar irradiance by exact location" },
+  { icon: Zap, title: "India Tariffs", desc: "50+ DISCOMs with accurate rates" },
+  { icon: Award, title: "GBI Ready", desc: "Commercial subsidies calculated" },
+];
+
+export default function LandingPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-orange-50 to-blue-50">
+      {/* Header - REAL ROUTES */}
+      <header className="container mx-auto px-6 py-4 flex justify-between items-center">
+        {/* Logo */}
+        <Link href="/" className="flex items-center space-x-2">
+          <div className="w-10 h-10 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center">
+            <Sun className="w-5 h-5 text-white" />
+          </div>
+          <h1 className="font-bold text-2xl bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+            SolarSurya
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+        </Link>
+
+        {/* Navigation + CTAs */}
+        <div className="flex items-center gap-2 lg:gap-4">
+          {/* Desktop Navigation - REAL PAGES */}
+          <nav className="hidden md:flex items-center gap-6">
+            <Link href="/features" className="text-lg font-medium text-gray-700 hover:text-orange-500 transition-colors group">
+              Features<span className="block h-0.5 w-0 bg-orange-500 group-hover:w-full transition-all duration-300" />
+            </Link>
+            <Link href="/how-it-works" className="text-lg font-medium text-gray-700 hover:text-orange-500 transition-colors group">
+              How It Works<span className="block h-0.5 w-0 bg-orange-500 group-hover:w-full transition-all duration-300" />
+            </Link>
+            <Link href="/about" className="text-lg font-medium text-gray-700 hover:text-orange-500 transition-colors group">
+              About<span className="block h-0.5 w-0 bg-orange-500 group-hover:w-full transition-all duration-300" />
+            </Link>
+            <Link href="/contact" className="text-lg font-medium text-gray-700 hover:text-orange-500 transition-colors group">
+              Contact<span className="block h-0.5 w-0 bg-orange-500 group-hover:w-full transition-all duration-300" />
+            </Link>
+          </nav>
+
+          {/* Right CTAs */}
+          <div className="flex items-center gap-3">
+            <SignInButton mode="modal">
+              <button className="
+                hidden lg:inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold 
+                bg-white/80 hover:bg-white border border-gray-200/50 hover:border-orange-200
+                rounded-xl shadow-md hover:shadow-lg backdrop-blur-sm transition-all duration-300
+                hover:-translate-y-0.5 hover:scale-[1.02]">
+                <Zap className="w-4 h-4" />
+                Demo
+              </button>
+            </SignInButton>
+
+            <SignInButton mode="modal">
+              <button className="
+                group flex items-center gap-2 px-6 py-2.5 text-sm font-semibold 
+                bg-gradient-to-r from-orange-500 to-yellow-500 text-white 
+                hover:from-orange-600 hover:to-yellow-600 shadow-lg hover:shadow-xl
+                rounded-xl border border-transparent hover:border-orange-300/50
+                transition-all duration-300 transform hover:-translate-y-0.5
+                backdrop-blur-sm bg-opacity-95">
+                <Sun className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+                <span>Start Free</span>
+                <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </SignInButton>
+
+            <UserButton 
+              afterSignOutUrl="/" 
+              className="
+                rounded-full p-1.5 border border-white/30 
+                hover:border-orange-200/50 bg-white/20 backdrop-blur-sm
+                shadow-lg hover:shadow-xl hover:bg-white/30 transition-all duration-300
+                hover:scale-105"
+              showName={true}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button className="md:hidden p-2 rounded-xl hover:bg-orange-100 transition-colors">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
         </div>
-      </main>
+      </header>
+
+      {/* Hero Section */}
+      <section className="container mx-auto px-6 py-24 text-center">
+        <div className="max-w-4xl mx-auto">
+          <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 mb-6 inline-flex items-center gap-1">
+            <Award className="w-4 h-4" />
+            SDG 7 - Affordable Clean Energy
+          </Badge>
+          
+          <h1 className="text-6xl md:text-7xl font-black bg-gradient-to-r from-gray-900 via-orange-600 to-yellow-500 bg-clip-text text-transparent mb-6 leading-tight">
+            Unlock Your <br />
+            <span className="bg-gradient-to-r from-orange-500 to-yellow-500 bg-clip-text text-transparent">
+              Rooftop Solar
+            </span> Potential
+          </h1>
+          
+          <p className="text-xl md:text-2xl text-gray-700 mb-12 max-w-2xl mx-auto leading-relaxed">
+            Get accurate solar estimates for your home or factory in 2 minutes. 
+            Powered by NASA data + 50+ Indian DISCOM tariffs.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-20">
+            <SignInButton mode="modal">
+              <Button size="lg" className="text-lg px-10 bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 shadow-xl">
+                <Sun className="w-5 h-5 mr-2" />
+                Start Free Assessment
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </SignInButton>
+            <Button variant="outline" size="lg" className="text-lg px-10 border-gray-200">
+              Watch Demo (2min)
+            </Button>
+          </div>
+
+          {/* Trust Indicators */}
+          <div id="features" className="grid grid-cols-2 md:grid-cols-3 gap-8 mb-24"> {/* 👈 Added id */}
+            {features.map((feature, i) => (
+              <div key={i} className="flex flex-col items-center space-y-2 group">
+                <div className="w-14 h-14 bg-white/80 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-all duration-300">
+                  <feature.icon className="w-7 h-7 text-orange-500" />
+                </div>
+                <p className="font-semibold text-gray-900 text-sm">{feature.title}</p>
+                <p className="text-xs text-gray-500 text-center">{feature.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-8 mb-24 p-8 bg-white/60 backdrop-blur-xl rounded-3xl shadow-2xl">
+            <div className="text-center">
+              <div className="text-3xl font-black text-orange-500">10kW</div>
+              <div className="text-sm text-gray-600">Avg Home System</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-black text-orange-500">₹3.2L</div>
+              <div className="text-sm text-gray-600">Annual Savings</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-black text-orange-500">3.5 Yrs</div>
+              <div className="text-sm text-gray-600">Payback Time</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-black text-orange-500">14k kWh</div>
+              <div className="text-sm text-gray-600">Yearly Generation</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-black text-green-500">12T CO₂</div>
+              <div className="text-sm text-gray-600">Saved Yearly</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-black text-blue-500">TRL 8</div>
+              <div className="text-sm text-gray-600">Production Ready</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer - REAL ROUTES */}
+      <footer id="contact" className="border-t border-gray-200 bg-white/50 backdrop-blur-xl"> {/* 👈 Added id */}
+        <div className="container mx-auto px-6 py-12">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <div className="flex items-center space-x-2">
+              <Sun className="w-6 h-6 text-orange-500" />
+              <span className="font-semibold text-lg">SolarSurya</span>
+            </div>
+            <div className="flex flex-wrap gap-4 justify-center text-sm text-gray-500">
+              <Link href="/about" className="hover:text-orange-500 transition-colors">About</Link>
+              <Link href="/privacy" className="hover:text-orange-500 transition-colors">Privacy</Link>
+              <Link href="/terms" className="hover:text-orange-500 transition-colors">Terms</Link>
+              <Link href="/contact" className="hover:text-orange-500 transition-colors">Contact</Link>
+            </div>
+            <div className="text-xs text-gray-400">
+              © 2026 SolarSurya. Made for India's 500GW Solar Mission.
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
