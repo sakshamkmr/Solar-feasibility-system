@@ -1,6 +1,7 @@
-// app/page.tsx - Professional SolarSurya Landing Page (REAL ROUTES)
-import Link from 'next/link'; // 👈 NEW: Next.js Link
-import { SignInButton, UserButton } from "@clerk/nextjs";
+"use client"; // 👈 ADD THIS FIRST LINE
+
+import Link from 'next/link';
+import { useUser, useAuth, SignInButton, UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Sun, Zap, Award } from "lucide-react";
@@ -12,86 +13,127 @@ const features = [
 ];
 
 export default function LandingPage() {
+  const { isLoaded, isSignedIn, user } = useUser();
+  const { signOut } = useAuth();
+
+  // Show loading while Clerk initializes
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 via-orange-50 to-blue-50">
+        <div className="text-lg text-gray-600">Loading SolarSurya...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-orange-50 to-blue-50">
-      {/* Header - REAL ROUTES */}
-      <header className="container mx-auto px-6 py-4 flex justify-between items-center">
-        {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2">
-          <div className="w-10 h-10 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center">
-            <Sun className="w-5 h-5 text-white" />
-          </div>
-          <h1 className="font-bold text-2xl bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-            SolarSurya
-          </h1>
-        </Link>
+      {/* Header */}
+      <header className="backdrop-blur-sm bg-white/80 border-b border-white/20 sticky top-0 z-50">
+        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+          {/* Logo */}
+          <Link href="/" className="flex items-center space-x-2">
+            <div className="w-10 h-10 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center">
+              <Sun className="w-5 h-5 text-white" />
+            </div>
+            <h1 className="font-bold text-2xl bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+              SolarSurya
+            </h1>
+          </Link>
 
-        {/* Navigation + CTAs */}
-        <div className="flex items-center gap-2 lg:gap-4">
-          {/* Desktop Navigation - REAL PAGES */}
-          <nav className="hidden md:flex items-center gap-6">
-            <Link href="/features" className="text-lg font-medium text-gray-700 hover:text-orange-500 transition-colors group">
-              Features<span className="block h-0.5 w-0 bg-orange-500 group-hover:w-full transition-all duration-300" />
-            </Link>
-            <Link href="/how-it-works" className="text-lg font-medium text-gray-700 hover:text-orange-500 transition-colors group">
-              How It Works<span className="block h-0.5 w-0 bg-orange-500 group-hover:w-full transition-all duration-300" />
-            </Link>
-            <Link href="/about" className="text-lg font-medium text-gray-700 hover:text-orange-500 transition-colors group">
-              About<span className="block h-0.5 w-0 bg-orange-500 group-hover:w-full transition-all duration-300" />
-            </Link>
-            <Link href="/contact" className="text-lg font-medium text-gray-700 hover:text-orange-500 transition-colors group">
-              Contact<span className="block h-0.5 w-0 bg-orange-500 group-hover:w-full transition-all duration-300" />
-            </Link>
-          </nav>
+          {/* Nav + Auth Buttons */}
+          <div className="flex items-center gap-2 lg:gap-4">
+            {/* Desktop Nav */}
+            <nav className="hidden md:flex items-center gap-6">
+              <Link href="/solar" className="text-lg font-medium text-gray-700 hover:text-orange-500 transition-colors group">
+                Solar Calculator <span className="block h-0.5 w-0 bg-orange-500 group-hover:w-full transition-all duration-300" />
+              </Link>
+              <Link href="/about" className="text-lg font-medium text-gray-700 hover:text-orange-500 transition-colors group">
+                About <span className="block h-0.5 w-0 bg-orange-500 group-hover:w-full transition-all duration-300" />
+              </Link>
+            </nav>
 
-          {/* Right CTAs */}
-          <div className="flex items-center gap-3">
-            <SignInButton mode="modal">
-              <button className="
-                hidden lg:inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold 
-                bg-white/80 hover:bg-white border border-gray-200/50 hover:border-orange-200
-                rounded-xl shadow-md hover:shadow-lg backdrop-blur-sm transition-all duration-300
-                hover:-translate-y-0.5 hover:scale-[1.02]">
-                <Zap className="w-4 h-4" />
-                Demo
+            {/* Conditional Auth Buttons */}
+            <div className="flex items-center gap-3">
+              {isSignedIn ? (
+                <>
+                  {/* LOGGED IN: Go to Solar */}
+                  <Link href="/solar">
+                    <button className="
+                      hidden lg:inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold 
+                      bg-white/80 hover:bg-white border border-gray-200/50 hover:border-orange-200
+                      rounded-xl shadow-md hover:shadow-lg backdrop-blur-sm transition-all duration-300
+                      hover:-translate-y-0.5 hover:scale-[1.02]">
+                      <Zap className="w-4 h-4" />
+                      Assessment
+                    </button>
+                  </Link>
+
+                  <Link href="/solar">
+                    <button className="
+                      group flex items-center gap-2 px-6 py-2.5 text-sm font-semibold 
+                      bg-gradient-to-r from-orange-500 to-yellow-500 text-white 
+                      hover:from-orange-600 hover:to-yellow-600 shadow-lg hover:shadow-xl
+                      rounded-xl border border-transparent hover:border-orange-300/50
+                      transition-all duration-300 transform hover:-translate-y-0.5
+                      backdrop-blur-sm bg-opacity-95">
+                      <Sun className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+                      <span>Go to Calculator</span>
+                      <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  </Link>
+
+                  <UserButton 
+                    afterSignOutUrl="/" 
+                    className="
+                      rounded-full p-1.5 border border-white/30 
+                      hover:border-orange-200/50 bg-white/20 backdrop-blur-sm
+                      shadow-lg hover:shadow-xl hover:bg-white/30 transition-all duration-300
+                      hover:scale-105"
+                    showName={true}
+                  />
+                </>
+              ) : (
+                <>
+                  {/* NOT LOGGED IN: Sign In */}
+                  <SignInButton mode="modal">
+                    <button className="
+                      hidden lg:inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold 
+                      bg-white/80 hover:bg-white border border-gray-200/50 hover:border-orange-200
+                      rounded-xl shadow-md hover:shadow-lg backdrop-blur-sm transition-all duration-300
+                      hover:-translate-y-0.5 hover:scale-[1.02]">
+                      <Zap className="w-4 h-4" />
+                      Demo
+                    </button>
+                  </SignInButton>
+
+                  <SignInButton mode="modal">
+                    <button className="
+                      group flex items-center gap-2 px-6 py-2.5 text-sm font-semibold 
+                      bg-gradient-to-r from-orange-500 to-yellow-500 text-white 
+                      hover:from-orange-600 hover:to-yellow-600 shadow-lg hover:shadow-xl
+                      rounded-xl border border-transparent hover:border-orange-300/50
+                      transition-all duration-300 transform hover:-translate-y-0.5
+                      backdrop-blur-sm bg-opacity-95">
+                      <Sun className="w-4 h-4 group-hover:rotate-12 transition-transform" />
+                      <span>Start Free</span>
+                      <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  </SignInButton>
+                </>
+              )}
+
+              {/* Mobile Menu */}
+              <button className="md:hidden p-2 rounded-xl hover:bg-orange-100 transition-colors">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
               </button>
-            </SignInButton>
-
-            <SignInButton mode="modal">
-              <button className="
-                group flex items-center gap-2 px-6 py-2.5 text-sm font-semibold 
-                bg-gradient-to-r from-orange-500 to-yellow-500 text-white 
-                hover:from-orange-600 hover:to-yellow-600 shadow-lg hover:shadow-xl
-                rounded-xl border border-transparent hover:border-orange-300/50
-                transition-all duration-300 transform hover:-translate-y-0.5
-                backdrop-blur-sm bg-opacity-95">
-                <Sun className="w-4 h-4 group-hover:rotate-12 transition-transform" />
-                <span>Start Free</span>
-                <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-              </button>
-            </SignInButton>
-
-            <UserButton 
-              afterSignOutUrl="/" 
-              className="
-                rounded-full p-1.5 border border-white/30 
-                hover:border-orange-200/50 bg-white/20 backdrop-blur-sm
-                shadow-lg hover:shadow-xl hover:bg-white/30 transition-all duration-300
-                hover:scale-105"
-              showName={true}
-            />
+            </div>
           </div>
-
-          {/* Mobile Menu Button */}
-          <button className="md:hidden p-2 rounded-xl hover:bg-orange-100 transition-colors">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
         </div>
       </header>
 
-      {/* Hero Section */}
+      {/* Hero */}
       <section className="container mx-auto px-6 py-24 text-center">
         <div className="max-w-4xl mx-auto">
           <Badge className="bg-gradient-to-r from-yellow-400 to-orange-500 mb-6 inline-flex items-center gap-1">
@@ -112,20 +154,30 @@ export default function LandingPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-20">
-            <SignInButton mode="modal">
-              <Button size="lg" className="text-lg px-10 bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 shadow-xl">
-                <Sun className="w-5 h-5 mr-2" />
-                Start Free Assessment
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            </SignInButton>
+            {isSignedIn ? (
+              <Link href="/solar">
+                <Button size="lg" className="text-lg px-10 bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 shadow-xl">
+                  <Sun className="w-5 h-5 mr-2" />
+                  Go to Calculator
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </Link>
+            ) : (
+              <SignInButton mode="modal">
+                <Button size="lg" className="text-lg px-10 bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 shadow-xl">
+                  <Sun className="w-5 h-5 mr-2" />
+                  Start Free Assessment
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </SignInButton>
+            )}
             <Button variant="outline" size="lg" className="text-lg px-10 border-gray-200">
               Watch Demo (2min)
             </Button>
           </div>
 
-          {/* Trust Indicators */}
-          <div id="features" className="grid grid-cols-2 md:grid-cols-3 gap-8 mb-24"> {/* 👈 Added id */}
+          {/* Features */}
+          <div id="features" className="grid grid-cols-2 md:grid-cols-3 gap-8 mb-24">
             {features.map((feature, i) => (
               <div key={i} className="flex flex-col items-center space-y-2 group">
                 <div className="w-14 h-14 bg-white/80 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-all duration-300">
@@ -167,8 +219,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Footer - REAL ROUTES */}
-      <footer id="contact" className="border-t border-gray-200 bg-white/50 backdrop-blur-xl"> {/* 👈 Added id */}
+      {/* Footer */}
+      <footer id="contact" className="border-t border-gray-200 bg-white/50 backdrop-blur-xl">
         <div className="container mx-auto px-6 py-12">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="flex items-center space-x-2">
@@ -179,7 +231,6 @@ export default function LandingPage() {
               <Link href="/about" className="hover:text-orange-500 transition-colors">About</Link>
               <Link href="/privacy" className="hover:text-orange-500 transition-colors">Privacy</Link>
               <Link href="/terms" className="hover:text-orange-500 transition-colors">Terms</Link>
-              <Link href="/contact" className="hover:text-orange-500 transition-colors">Contact</Link>
             </div>
             <div className="text-xs text-gray-400">
               © 2026 SolarSurya. Made for India's 500GW Solar Mission.
