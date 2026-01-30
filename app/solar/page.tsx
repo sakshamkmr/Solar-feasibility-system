@@ -1,11 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { api } from "@/convex/_generated/api";
+import { toast } from "sonner";
 import { SolarForm } from "@/components/solar/Form";
 import { ResultsPreview } from "@/components/solar/ResultsPreview";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { ArrowLeft, Sun, Zap, Shield, Award } from "lucide-react";
+import { ArrowLeft, Sun, Zap, Shield, Award, TrendingUp } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { useAction, useMutation } from "convex/react";  // ✅ FIXED: Added useMutation
 
 export default function SolarPage() {
   const [formData, setFormData] = useState({
@@ -25,74 +29,91 @@ export default function SolarPage() {
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // ✅ FIXED: Both hooks
+  const calculateSolarAction = useAction(api.calculate.calculateSolar);
+  const saveAssessmentMutation = useMutation(api.assessments.saveAssessment);  // ✅ ADDED
+
   const handleCalculate = async () => {
     setLoading(true);
     
     try {
-      // NASA API with timeout
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
+      const backendPayload = {
+        pincode: formData.pincode,
+        roofArea: parseFloat(formData.roofArea) || 100,
+        dailyUsage: parseFloat(formData.dailyUsage) || 15,
+        buildingType: formData.buildingType || "residential",
+        discom: formData.discom || "TANGEDCO",
+        roofOrientation: formData.roofOrientation || "south",
+        roofTilt: parseFloat(formData.roofTilt) || 15,
+        shadows: formData.shadows
+      };
+      
+      console.log("🚀 Calculate:", backendPayload);
+      
+      // ✅ STEP 1: NASA Calculation
+      const response = await calculateSolarAction(backendPayload);
+      console.log("✅ NASA result:", response);
+      
+      // ✅ STEP 2: SAVE TO DASHBOARD (THIS WAS MISSING!)
+      await saveAssessmentMutation({
+        assessment: {
+          pincode: response.location.pincode,
+          roofArea: backendPayload.roofArea,
+          dailyUsage: backendPayload.dailyUsage,
+          systemSize: response.systemSize,
+          annualYield: response.annualYield,
+          annualSavings: response.annualSavings,
+          payback: response.payback,
+          capex: response.capex,
+          netCapex: response.netCapex,
+          irradiance: response.irradiance,
+          inputs: backendPayload
+        }
+      });
+      console.log("✅ SAVED to dashboard!");
 
-      const lat = 13.05;
-      const lon = 80.27;
-      
-      const response = await fetch(
-        `https://power.larc.nasa.gov/api/temporal/daily/point?parameters=ALLSKY_SFC_SW_DWN&community=RE&longitude=${lon}&latitude=${lat}&start=20250601&end=20250630&format=JSON`,
-        { signal: controller.signal }
-      );
-      
-      clearTimeout(timeoutId);
-      const data = await response.json();
-      const irradiance = data.properties?.parameter?.ALLSKY_SFC_SW_DWN?.[0] || 5.2;
-      
-      // Calculations
-      const roofArea = parseFloat(formData.roofArea) || 100;
-      const dailyUsage = parseFloat(formData.dailyUsage) || 15;
-      const tiltFactor = formData.roofTilt ? Math.min(parseInt(formData.roofTilt) / 20, 1.2) : 1;
-      const orientationFactor = formData.roofOrientation === 'south' ? 1.0 : 
-                               (formData.roofOrientation === 'east-west' ? 0.9 : 0.75);
-      const shadowFactor = Object.values(formData.shadows).filter(Boolean).length > 0 ? 0.85 : 1.0;
-      
-      const systemSize = Math.min(roofArea * 0.15, dailyUsage * 1.2);
-      const annualYield = systemSize * irradiance * 365 * 0.8 * tiltFactor * orientationFactor * shadowFactor;
-      const savings = annualYield * 6.5;
-      const subsidy = systemSize > 3 ? 78000 : systemSize * 25000;
-      const payback = (systemSize * 50000 - subsidy) / savings;
-
-      const finalResults = {
-        irradiance: parseFloat(irradiance),
-        systemSize,
-        annualYield: Math.round(annualYield),
-        savings: Math.round(savings),
-        subsidy: Math.round(subsidy),
-        payback: parseFloat(payback.toFixed(1)),
-        latitude: lat,
+      // Transform for ResultsPreview
+      const transformedResults = {
+        irradiance: response.irradiance,
+        systemSize: response.systemSize,
+        annualYield: response.annualYield,
+        savings: response.annualSavings,
+        subsidy: response.subsidy || 78000,
+        payback: response.payback,
+        latitude: parseFloat(response.location.lat),
+        longitude: parseFloat(response.location.lon),
+        tariffRate: response.tariffRate,
+        netCapex: response.netCapex,
+        roi10yr: response.roi10yr
       };
 
-      setResults(finalResults);
-      localStorage.setItem('solar-results', JSON.stringify(finalResults));
+      setResults(transformedResults);
+      localStorage.setItem('solar-results', JSON.stringify(transformedResults));
       localStorage.setItem('solar-form-data', JSON.stringify(formData));
       
+      toast.success(`✅ Saved! ${response.irradiance.toFixed(1)} kWh/m² @ ${response.location.pincode}`);
+      
     } catch (error) {
-      console.error("NASA API error:", error);
-      // Instant fallback
-      const fallbackResults = {
+      console.error("Error:", error);
+      toast.error("Using fallback");
+      
+      // Simple fallback
+      setResults({
         irradiance: 5.2,
         systemSize: 3.2,
         annualYield: 4850,
         savings: 31525,
         subsidy: 78000,
         payback: 4.2,
-        latitude: 13.05,
-      };
-      setResults(fallbackResults);
-      localStorage.setItem('solar-results', JSON.stringify(fallbackResults));
-      localStorage.setItem('solar-form-data', JSON.stringify(formData));
+        latitude: 13.05
+      });
+      
     } finally {
-      setLoading(false); // ALWAYS runs
+      setLoading(false);
     }
   };
 
+  // Rest of your component (unchanged)
   const handleDownloadPDF = () => {
     const content = `Solar Feasibility Report
 Date: ${new Date().toLocaleDateString('en-IN')}
@@ -115,9 +136,7 @@ Government Subsidy: Rs ${results?.subsidy?.toLocaleString() || 0}`;
   };
 
   const handleViewDetailed = () => {
-    if (results) {
-      window.location.href = '/solar/results';
-    }
+    if (results) window.location.href = '/solar/results';
   };
 
   return (
@@ -125,10 +144,7 @@ Government Subsidy: Rs ${results?.subsidy?.toLocaleString() || 0}`;
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
         {/* Hero Section */}
         <div className="text-center mb-20 lg:mb-28 max-w-4xl mx-auto">
-          <Link 
-            href="/" 
-            className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-white/90 backdrop-blur-xl shadow-xl border hover:bg-orange-50 hover:shadow-2xl transition-all duration-300 mb-12 text-lg font-semibold text-gray-800"
-          >
+          <Link href="/" className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-white/90 backdrop-blur-xl shadow-xl border hover:bg-orange-50 hover:shadow-2xl transition-all duration-300 mb-12 text-lg font-semibold text-gray-800">
             <ArrowLeft className="w-5 h-5" />
             Back to Home
           </Link>
@@ -138,33 +154,27 @@ Government Subsidy: Rs ${results?.subsidy?.toLocaleString() || 0}`;
               <Sun className="w-12 h-12 text-white" />
             </div>
             <div>
-              <h1 className="text-4xl lg:text-5xl font-black text-white leading-tight">
-                Solar Roof Calculator
-              </h1>
-              <p className="text-xl lg:text-2xl text-white/95 font-semibold mt-4">
-                Instant analysis powered by NASA satellite data
-              </p>
+              <h1 className="text-4xl lg:text-5xl font-black text-white leading-tight">Solar Roof Calculator</h1>
+              <p className="text-xl lg:text-2xl text-white/95 font-semibold mt-4">Instant analysis powered by NASA satellite data</p>
             </div>
           </div>
 
-          {/* Trust Badges */}
           <div className="flex flex-wrap gap-4 justify-center items-center mt-12 px-4">
             <div className="flex items-center gap-3 px-6 py-3 bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border hover:shadow-2xl transition-all">
-              <Shield className="w-6 h-6 text-emerald-500" />
-              <span className="font-semibold text-gray-800 text-sm">MNRE Approved</span>
+              <Shield className="w-6 h-6 text-emerald-500" /><span className="font-semibold text-gray-800 text-sm">MNRE Approved</span>
             </div>
             <div className="flex items-center gap-3 px-6 py-3 bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border hover:shadow-2xl transition-all">
-              <Zap className="w-6 h-6 text-blue-500" />
-              <span className="font-semibold text-gray-800 text-sm">NASA Data</span>
+              <Zap className="w-6 h-6 text-blue-500" /><span className="font-semibold text-gray-800 text-sm">NASA Data</span>
             </div>
             <div className="flex items-center gap-3 px-6 py-3 bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border hover:shadow-2xl transition-all">
-              <Award className="w-6 h-6 text-amber-500" />
-              <span className="font-semibold text-gray-800 text-sm">25Y Warranty</span>
+              <Award className="w-6 h-6 text-amber-500" /><span className="font-semibold text-gray-800 text-sm">25Y Warranty</span>
+            </div>
+            <div className="flex items-center gap-3 px-6 py-3 bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border hover:shadow-2xl transition-all">
+              <TrendingUp className="w-6 h-6 text-purple-500" /><span className="font-semibold text-gray-800 text-sm">Cloud Saved</span>
             </div>
           </div>
         </div>
 
-        {/* Main Grid */}
         <div className="grid lg:grid-cols-2 gap-12 items-start">
           <SolarForm 
             formData={formData}
@@ -172,7 +182,6 @@ Government Subsidy: Rs ${results?.subsidy?.toLocaleString() || 0}`;
             loading={loading}
             onCalculate={handleCalculate}
           />
-          
           <div className="hidden lg:block">
             <ResultsPreview 
               results={results}
@@ -183,7 +192,6 @@ Government Subsidy: Rs ${results?.subsidy?.toLocaleString() || 0}`;
           </div>
         </div>
 
-        {/* Mobile Results */}
         {results && (
           <div className="lg:hidden mt-12 max-w-2xl mx-auto">
             <ResultsPreview 

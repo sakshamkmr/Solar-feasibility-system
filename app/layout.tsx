@@ -1,20 +1,20 @@
 import type { Metadata } from "next";
-
 import "./globals.css";
-import { ConvexClientProvider } from "./ConvexClientProvider";
-import { ClerkProvider } from "@clerk/nextjs"; // 👈 ADD THIS
 import { Geist, Geist_Mono } from "next/font/google";
+import { ConvexClientProvider } from "./ConvexClientProvider"; // ✅ Client boundary
+import { ClerkProvider } from "@clerk/nextjs";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
 
-
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
-export const metadata: Metadata = {
+
+export const metadata: Metadata = { // ✅ WORKS IN SERVER COMPONENT
   title: {
     default: "SolarSurya - Rooftop Solar Calculator",
     template: "%s | SolarSurya"
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "SolarSurya - India's Rooftop Solar Calculator",
     description: "Free solar feasibility tool for homes & factories",
-    images: "/og-image.jpg", // Add later
+    images: "/og-image.jpg",
     type: "website",
     locale: "en_IN",
   },
@@ -36,11 +36,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider> {/* 👈 WRAP WITH CLERK */}
+    <ClerkProvider>
       <html lang="en">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           <ConvexClientProvider>
             {children}
           </ConvexClientProvider>
