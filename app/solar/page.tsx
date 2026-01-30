@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowLeft, Sun, Zap, Shield, Award, TrendingUp } from "lucide-react";
 import { Loader2 } from "lucide-react";
-import { useAction, useMutation } from "convex/react";  // ✅ FIXED: Added useMutation
+import { useAction, useMutation } from "convex/react";
 
 export default function SolarPage() {
   const [formData, setFormData] = useState({
@@ -28,10 +28,11 @@ export default function SolarPage() {
   
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [latestAssessmentId, setLatestAssessmentId] = useState(null); // ✅ NEW
 
   // ✅ FIXED: Both hooks
   const calculateSolarAction = useAction(api.calculate.calculateSolar);
-  const saveAssessmentMutation = useMutation(api.assessments.saveAssessment);  // ✅ ADDED
+  const saveAssessmentMutation = useMutation(api.assessments.saveAssessment);
 
   const handleCalculate = async () => {
     setLoading(true);
@@ -54,8 +55,8 @@ export default function SolarPage() {
       const response = await calculateSolarAction(backendPayload);
       console.log("✅ NASA result:", response);
       
-      // ✅ STEP 2: SAVE TO DASHBOARD (THIS WAS MISSING!)
-      await saveAssessmentMutation({
+      // ✅ STEP 2: SAVE TO DASHBOARD & GET ID!
+      const assessmentId = await saveAssessmentMutation({
         assessment: {
           pincode: response.location.pincode,
           roofArea: backendPayload.roofArea,
@@ -70,7 +71,11 @@ export default function SolarPage() {
           inputs: backendPayload
         }
       });
-      console.log("✅ SAVED to dashboard!");
+      
+      // ✅ SAVE ASSESSMENT ID FOR "View Detailed" button
+      setLatestAssessmentId(assessmentId);
+      localStorage.setItem('latestAssessmentId', assessmentId);
+      console.log("✅ SAVED with ID:", assessmentId);
 
       // Transform for ResultsPreview
       const transformedResults = {
@@ -113,6 +118,15 @@ export default function SolarPage() {
     }
   };
 
+  // ✅ FIXED: Navigate to CORRECT dashboard route
+  const handleViewDetailed = () => {
+    if (latestAssessmentId) {
+      window.location.href = `/dashboard/results/${latestAssessmentId}`;
+    } else if (results) {
+      window.location.href = '/dashboard'; // Fallback to dashboard
+    }
+  };
+
   // Rest of your component (unchanged)
   const handleDownloadPDF = () => {
     const content = `Solar Feasibility Report
@@ -133,10 +147,6 @@ Government Subsidy: Rs ${results?.subsidy?.toLocaleString() || 0}`;
     a.download = `SolarSurya-${formData.pincode || 'IN'}-${Date.now()}.txt`;
     a.click();
     window.URL.revokeObjectURL(url);
-  };
-
-  const handleViewDetailed = () => {
-    if (results) window.location.href = '/solar/results';
   };
 
   return (

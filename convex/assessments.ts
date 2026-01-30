@@ -14,18 +14,17 @@ export const saveAssessment = mutation({
       capex: v.number(),
       netCapex: v.number(),
       irradiance: v.number(),
-      inputs: v.object({})
+      inputs: v.record(v.string(), v.any()), // ✅ Stores ALL form data!
     })
   },
   handler: async (ctx, args) => {
-    return await ctx.db.insert("assessments", {
-      ...args.assessment,
-      createdAt: Date.now()
+    return await ctx.db.insert("assessments", { 
+      ...args.assessment, 
+      createdAt: Date.now() 
     });
   }
 });
 
-// ✅ CORRECT: Use for await loop (NO chaining errors!)
 export const getRecentAssessments = query({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
@@ -38,7 +37,16 @@ export const getRecentAssessments = query({
     }
     
     return assessments;
-  }
+  },
+});
+
+export const getAssessmentById = query({
+  args: { id: v.id("assessments") },
+  handler: async (ctx, { id }) => {
+    const assessment = await ctx.db.get(id);
+    if (!assessment) throw new Error("Assessment not found");
+    return assessment;
+  },
 });
 
 export const getDashboardStats = query({
@@ -58,5 +66,5 @@ export const getDashboardStats = query({
         : 0,
       bestSavings: Math.round(Math.max(...assessments.map(a => a.annualSavings || 0), 0))
     };
-  }
+  },
 });

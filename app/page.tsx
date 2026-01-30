@@ -49,11 +49,7 @@ export default function LandingPage() {
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-orange-500 to-yellow-500 group-hover:w-full transition-all duration-300" />
               </Link>
               
-              {/* ✅ SOLAR CALCULATOR SECOND */}
-              <Link href="/solar" className="text-lg font-semibold text-gray-700 hover:text-orange-500 transition-all duration-300 group relative">
-                Solar Calculator
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-orange-500 to-yellow-500 group-hover:w-full transition-all duration-300" />
-              </Link>
+              
               
               {/* ✅ DASHBOARD - SIGNED IN ONLY */}
               {isSignedIn && (

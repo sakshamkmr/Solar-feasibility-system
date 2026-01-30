@@ -3,11 +3,20 @@ import { v } from "convex/values";
 
 const NASA_API_BASE = "https://power.larc.nasa.gov/api";
 
-// ✅ WORKING PINCODE APIs (tested)
+// ✅ PINCODE COORD MAPPING (Real India locations)
+const PINCODE_COORDS = {
+  "632014": { lat: 12.92, lon: 79.13 },  // Vellore/Katpadi
+  "600001": { lat: 13.08, lon: 80.27 },  // Chennai
+  "641001": { lat: 10.99, lon: 78.15 },  // Trichy
+  "560001": { lat: 12.97, lon: 77.59 },  // Bangalore
+  "110001": { lat: 28.61, lon: 77.21 },  // Delhi
+  "734001": { lat: 27.02, lon: 88.26 }   // Siliguri
+};
+
 const PINCODE_APIS = [
-  "https://api.postalpincode.in/pincode",           // ✅ Primary
-  "https://pincode.net.in/json/pincode",           // ✅ Backup 1  
-  "https://pincodes.info/api/pincode"              // ✅ Backup 2
+  "https://api.postalpincode.in/pincode",
+  "https://pincode.net.in/json/pincode", 
+  "https://pincodes.info/api/pincode"
 ];
 
 export const calculateSolar = action({
@@ -28,44 +37,53 @@ export const calculateSolar = action({
   handler: async (ctx, args) => {
     let lat = 13.05, lon = 80.27; // Chennai default
 
-    // ✅ REAL PINCODE → LAT/LON LOOKUP
-    try {
-      for (const api of PINCODE_APIS) {
-        try {
-          console.log(`🔍 Pincode lookup: ${api}/${args.pincode}`);
-          const response = await fetch(`${api}/${args.pincode}`);
-          
-          if (!response.ok) continue;
-          
-          const data = await response.json();
-          
-          // postalpincode.in format
-          if (data[0]?.PostOffice?.[0]) {
-            const postOffice = data[0].PostOffice[0];
-            lat = parseFloat(postOffice.Latitude || postOffice.lat) || lat;
-            lon = parseFloat(postOffice.Longitude || postOffice.lon) || lon;
-            console.log(`✅ PINCODE HIT: ${args.pincode} → ${lat.toFixed(4)}, ${lon.toFixed(4)}`);
-            break;
+    // ✅ 1. PINCODE MAPPING (Reliable fallback)
+    if (PINCODE_COORDS[args.pincode]) {
+      lat = PINCODE_COORDS[args.pincode].lat;
+      lon = PINCODE_COORDS[args.pincode].lon;
+      console.log(`✅ PINCODE MAPPED: ${args.pincode} → ${lat.toFixed(4)}, ${lon.toFixed(4)}`);
+    } 
+    // ✅ 2. TRY PINCODE APIs (Enhanced parsing)
+    else {
+      try {
+        for (const api of PINCODE_APIS) {
+          try {
+            console.log(`🔍 Pincode lookup: ${api}/${args.pincode}`);
+            const response = await fetch(`${api}/${args.pincode}`);
+            
+            if (!response.ok) continue;
+            
+            const data = await response.json();
+            
+            // postalpincode.in format - TRY ALL lat/lon field names
+            if (data[0]?.PostOffice?.[0]) {
+              const postOffice = data[0].PostOffice[0];
+              lat = parseFloat(postOffice.Latitude || postOffice.latitude || postOffice.Lat || postOffice.lat) || lat;
+              lon = parseFloat(postOffice.Longitude || postOffice.longitude || postOffice.Lon || postOffice.lon) || lon;
+              if (lat !== 13.05 || lon !== 80.27) {
+                console.log(`✅ PINCODE HIT: ${args.pincode} → ${lat.toFixed(4)}, ${lon.toFixed(4)}`);
+                break;
+              }
+            }
+            // pincodes.info format
+            else if (data.latitude) {
+              lat = parseFloat(data.latitude);
+              lon = parseFloat(data.longitude);
+              console.log(`✅ PINCODE HIT: ${args.pincode} → ${lat.toFixed(4)}, ${lon.toFixed(4)}`);
+              break;
+            }
+          } catch (e) {
+            console.log(`❌ ${api} failed:`, e.message);
           }
-          
-          // pincodes.info format  
-          if (data.latitude) {
-            lat = parseFloat(data.latitude);
-            lon = parseFloat(data.longitude);
-            console.log(`✅ PINCODE HIT: ${args.pincode} → ${lat.toFixed(4)}, ${lon.toFixed(4)}`);
-            break;
-          }
-        } catch (e) {
-          console.log(`❌ ${api} failed:`, e.message);
         }
+      } catch (error) {
+        console.log("🚨 All pincode APIs failed, using mapped coords");
       }
-    } catch (error) {
-      console.log("🚨 All pincode APIs failed, using default coords");
     }
 
     console.log(`📍 FINAL: ${args.pincode} → ${lat.toFixed(2)}°N, ${lon.toFixed(2)}°E`);
 
-    // ✅ NASA POWER API (works perfectly)
+    // ✅ 3. NASA POWER API
     const nasaUrl = `${NASA_API_BASE}/temporal/daily/point?parameters=ALLSKY_SFC_SW_DWN&community=RE&latitude=${lat}&longitude=${lon}&start=20250101&end=20250131&format=JSON`;
     
     const nasaResponse = await fetch(nasaUrl);
@@ -73,7 +91,7 @@ export const calculateSolar = action({
     
     const irradiance = parseFloat(nasaData.properties?.parameter?.ALLSKY_SFC_SW_DWN?.[0] || "5.2");
 
-    // ✅ REST OF CALCULATIONS (unchanged)
+    // ✅ 4. CALCULATIONS
     const roofArea = args.roofArea || 100;
     const dailyUsage = args.dailyUsage || 15;
     
@@ -95,7 +113,13 @@ export const calculateSolar = action({
     const tariffRate = args.discom === "TANGEDCO" ? 7.5 : 6.5;
     const annualSavings = annualYield * tariffRate;
     const capex = systemSize * 48000;
-    const subsidy = systemSize > 3 ? 78000 : systemSize * 24000;
+    
+    // ✅ 5. DYNAMIC MNRE SUBSIDY 2026 (₹78k max cap)
+    const subsidy = Math.min(
+      systemSize * 30000,      // ₹30k/kW
+      78000                    // Max ₹78k cap (PM Surya Ghar)
+    );
+    
     const netCapex = capex - subsidy;
     const payback = netCapex / annualSavings || 5.0;
 

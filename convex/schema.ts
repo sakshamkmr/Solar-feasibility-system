@@ -13,7 +13,7 @@ export default defineSchema({
     capex: v.number(),
     netCapex: v.number(),
     irradiance: v.number(),
-    inputs: v.object({}),
+    inputs: v.record(v.string(), v.any()),
     createdAt: v.number()
   })
   .index("by_createdAt", ["createdAt"])

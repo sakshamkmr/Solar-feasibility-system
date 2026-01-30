@@ -90,32 +90,46 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Recent Assessments */}
+      {/* ✅ FIXED Recent Assessments - NOW CLICKABLE! */}
       <Card>
         <CardHeader>
           <CardTitle>Recent Assessments</CardTitle>
-          <p className="text-sm text-muted-foreground">Your latest solar calculations</p>
+          <p className="text-sm text-muted-foreground">Click to view detailed reports</p>
         </CardHeader>
         <CardContent>
           {assessments ? (
             assessments.length > 0 ? (
               <div className="space-y-4">
                 {assessments.map((assessment) => (
-                  <div key={assessment._id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline">{assessment.pincode}</Badge>
-                        <span className="font-semibold">{formatCurrency(assessment.annualSavings)}/yr</span>
+                  <Link
+                    key={assessment._id}
+                    href={`/dashboard/results/${assessment._id}`}  // ✅ FIXED: REAL ID!
+                    className="block p-6 border rounded-2xl hover:bg-orange-50/50 hover:shadow-xl transition-all hover:-translate-y-1 cursor-pointer group"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 mb-2 group-hover:translate-x-1 transition-transform">
+                          <Badge variant="outline" className="group-hover:bg-orange-100 group-hover:text-orange-800">
+                            {assessment.pincode}
+                          </Badge>
+                          <span className="text-2xl font-bold text-emerald-600 group-hover:text-emerald-700">
+                            {formatCurrency(assessment.annualSavings)}/yr
+                          </span>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-1">
+                          {assessment.roofArea?.toFixed(0)}㎡ roof • {assessment.systemSize?.toFixed(1)}kW system
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {formatDate(assessment.createdAt)} • {assessment.payback?.toFixed(1)} yr payback
+                        </p>
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        {assessment.roofArea}㎡ roof • {assessment.systemSize}kW system
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatDate(assessment.createdAt)} • {assessment.payback} yr payback
-                      </p>
+                      <div className="text-right ml-4 flex-shrink-0">
+                        <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold shadow-lg">
+                          {Math.round(assessment.irradiance)} kWh/m²
+                        </Badge>
+                      </div>
                     </div>
-                    <Badge variant="secondary">{Math.round(assessment.irradiance)} kWh/m²</Badge>
-                  </div>
+                  </Link>
                 ))}
               </div>
             ) : (
