@@ -154,9 +154,9 @@ Government Subsidy: Rs ${results?.subsidy?.toLocaleString() || 0}`;
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
         {/* Hero Section */}
         <div className="text-center mb-20 lg:mb-28 max-w-4xl mx-auto">
-          <Link href="/" className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-white/90 backdrop-blur-xl shadow-xl border hover:bg-orange-50 hover:shadow-2xl transition-all duration-300 mb-12 text-lg font-semibold text-gray-800">
+          <Link href="/" className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl bg-white/90 backdrop-blur-xl shadow-xl border border-gray-300 hover:bg-orange-50 hover:shadow-2xl transition-all duration-300 mb-12 text-lg font-bold text-gray-900">
             <ArrowLeft className="w-5 h-5" />
-            Back to Home
+            Go to Home Page
           </Link>
 
           <div className="inline-flex items-center gap-6 bg-gradient-to-r from-amber-500 to-orange-500 px-10 py-10 lg:py-12 rounded-3xl shadow-2xl backdrop-blur-xl border border-white/20 hover:shadow-3xl hover:-translate-y-2 transition-all duration-500 max-w-4xl mx-auto">
@@ -165,22 +165,22 @@ Government Subsidy: Rs ${results?.subsidy?.toLocaleString() || 0}`;
             </div>
             <div>
               <h1 className="text-4xl lg:text-5xl font-black text-white leading-tight">Solar Roof Calculator</h1>
-              <p className="text-xl lg:text-2xl text-white/95 font-semibold mt-4">Instant analysis powered by NASA satellite data</p>
+              <p className="text-xl lg:text-3xl text-white font-bold mt-4">Instant analysis powered by NASA satellite data</p>
             </div>
           </div>
 
           <div className="flex flex-wrap gap-4 justify-center items-center mt-12 px-4">
             <div className="flex items-center gap-3 px-6 py-3 bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border hover:shadow-2xl transition-all">
-              <Shield className="w-6 h-6 text-emerald-500" /><span className="font-semibold text-gray-800 text-sm">MNRE Approved</span>
+              <Shield className="w-6 h-6 text-emerald-500" /><span className="font-extrabold text-gray-900 text-base">MNRE Approved</span>
             </div>
             <div className="flex items-center gap-3 px-6 py-3 bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border hover:shadow-2xl transition-all">
-              <Zap className="w-6 h-6 text-blue-500" /><span className="font-semibold text-gray-800 text-sm">NASA Data</span>
+              <Zap className="w-6 h-6 text-blue-500" /><span className="font-extrabold text-gray-900 text-base">NASA Data</span>
             </div>
             <div className="flex items-center gap-3 px-6 py-3 bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border hover:shadow-2xl transition-all">
-              <Award className="w-6 h-6 text-amber-500" /><span className="font-semibold text-gray-800 text-sm">25Y Warranty</span>
+              <Award className="w-6 h-6 text-amber-500" /><span className="font-extrabold text-gray-900 text-base">25Y Warranty</span>
             </div>
             <div className="flex items-center gap-3 px-6 py-3 bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border hover:shadow-2xl transition-all">
-              <TrendingUp className="w-6 h-6 text-purple-500" /><span className="font-semibold text-gray-800 text-sm">Cloud Saved</span>
+              <TrendingUp className="w-6 h-6 text-purple-500" /><span className="font-extrabold text-gray-900 text-base">Cloud Saved</span>
             </div>
           </div>
         </div>

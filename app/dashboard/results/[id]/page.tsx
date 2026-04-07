@@ -112,13 +112,21 @@ NASA Irradiance: ${mappedResults?.irradiance?.toFixed(1)} kWh/m²/day`;
       <div className="max-w-7xl mx-auto px-6 py-12">
         {/* Header */}
         <div className="text-center mb-20">
-          <Link 
-            href="/dashboard" 
-            className="inline-flex items-center gap-3 text-xl font-semibold text-gray-700 hover:text-emerald-600 mb-12 px-6 py-3 bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl hover:shadow-2xl border border-gray-200 hover:bg-emerald-50/50 transition-all duration-300"
-          >
-            <ArrowLeft className="w-6 h-6" />
-            Back to Dashboard
-          </Link>
+          <div className="flex justify-center gap-4 mb-12">
+            <Link 
+              href="/dashboard" 
+              className="inline-flex items-center gap-3 text-xl font-semibold text-gray-700 hover:text-emerald-600 px-6 py-3 bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl hover:shadow-2xl border border-gray-200 hover:bg-emerald-50/50 transition-all duration-300"
+            >
+              <ArrowLeft className="w-6 h-6" />
+              Back to Dashboard
+            </Link>
+            <Link 
+              href="/" 
+              className="inline-flex items-center gap-3 text-xl font-semibold text-gray-700 hover:text-emerald-600 px-6 py-3 bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl hover:shadow-2xl border border-gray-200 hover:bg-emerald-50/50 transition-all duration-300"
+            >
+              🏠 Go to Home Page
+            </Link>
+          </div>
           
           <div className="inline-flex items-center gap-6 bg-gradient-to-r from-emerald-500 via-teal-500 to-blue-600 px-12 py-10 rounded-3xl shadow-2xl backdrop-blur-xl border border-white/30">
             <div className="w-20 h-20 bg-white/20 rounded-3xl flex items-center justify-center shadow-2xl backdrop-blur-xl p-4">

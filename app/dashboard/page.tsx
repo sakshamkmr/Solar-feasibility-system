@@ -29,27 +29,35 @@ export default function DashboardPage() {
           </h1>
           <p className="text-xl text-slate-600 mt-2 font-medium backdrop-blur-sm">Your solar assessment history & insights</p>
         </div>
-        <Link 
-          href="/solar" 
-          className="group relative inline-flex items-center justify-center px-10 py-5 text-xl font-black text-white bg-gradient-to-r from-yellow-500 via-orange-500 to-blue-600 
-                     bg-opacity-90 hover:bg-opacity-100 backdrop-blur-xl border-2 border-white/40 shadow-3xl hover:shadow-yellow-400/40 hover:shadow-3xl 
-                     rounded-3xl hover:scale-110 hover:-translate-y-2 active:scale-105 focus:outline-none focus:ring-4 focus:ring-yellow-400/60
-                     before:absolute before:inset-0 before:bg-gradient-to-r before:from-yellow-400/30 before:to-blue-500/30 
-                     before:blur-2xl before:rounded-3xl before:opacity-0 group-hover:before:opacity-100 before:transition-all before:duration-700"
-        >
-          <span className="relative z-10 flex items-center gap-3">
-            ☀️ New Calculation
-          </span>
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link 
+            href="/" 
+            className="group relative inline-flex items-center justify-center px-10 py-5 text-xl font-bold text-slate-700 bg-white hover:bg-orange-50 backdrop-blur-xl border-2 border-orange-200/50 shadow-xl hover:shadow-2xl rounded-3xl transition-all duration-300"
+          >
+            🏠 Go to Home Page
+          </Link>
+          <Link 
+            href="/solar" 
+            className="group relative inline-flex items-center justify-center px-10 py-5 text-xl font-black text-white bg-gradient-to-r from-yellow-500 via-orange-500 to-blue-600 
+                       bg-opacity-90 hover:bg-opacity-100 backdrop-blur-xl border-2 border-white/40 shadow-3xl hover:shadow-yellow-400/40 hover:shadow-3xl 
+                       rounded-3xl hover:scale-110 hover:-translate-y-2 active:scale-105 focus:outline-none focus:ring-4 focus:ring-yellow-400/60
+                       before:absolute before:inset-0 before:bg-gradient-to-r before:from-yellow-400/30 before:to-blue-500/30 
+                       before:blur-2xl before:rounded-3xl before:opacity-0 group-hover:before:opacity-100 before:transition-all before:duration-700"
+          >
+            <span className="relative z-10 flex items-center gap-3">
+              ☀️ New Calculation
+            </span>
+          </Link>
+        </div>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { title: "Total Assessments", value: stats?.totalAssessments, icon: "⭐", color: "from-emerald-500 to-green-500", key: "totalAssessments" },
-          { title: "Total Savings", value: formatCurrency(stats?.totalSavings), icon: "💰", color: "from-blue-500 to-indigo-500", key: "totalSavings" },
+          { title: "Total Assessments", value: stats?.totalAssessments || 0, icon: "⭐", color: "from-emerald-500 to-green-500", key: "totalAssessments" },
+          { title: "Total Savings", value: formatCurrency(stats?.totalSavings || 0), icon: "💰", color: "from-blue-500 to-indigo-500", key: "totalSavings" },
           { title: "Avg Payback", value: `${stats?.avgPayback || 0} years`, icon: "⚡", color: "from-orange-500 to-red-500", key: "avgPayback" },
-          { title: "Best Savings", value: formatCurrency(stats?.bestSavings), icon: "🏆", color: "from-purple-500 to-pink-500", key: "bestSavings" }
+          { title: "Best Savings", value: formatCurrency(stats?.bestSavings || 0), icon: "🏆", color: "from-purple-500 to-pink-500", key: "bestSavings" }
         ].map(({ title, value, icon, color }, i) => (
           <Card key={title} className="group relative overflow-hidden bg-gradient-to-br bg-white/80 backdrop-blur-xl border-0 shadow-xl hover:shadow-2xl hover:shadow-[color:var(--color)] transition-all duration-500 hover:scale-105 hover:-translate-y-2 border border-white/50">
             <div 

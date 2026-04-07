@@ -49,9 +49,13 @@ export default function LandingPage() {
             </Link>
 
             <nav className="hidden md:flex items-center gap-10">
-              {["Solutions", "Efficiency", "Monitoring", "Savings"].map((item) => (
-                <Link key={item} href="#" className="text-muted-foreground hover:text-primary transition-colors text-sm font-bold uppercase tracking-wider">
-                  {item}
+              {[
+                { label: "Contact Us", href: "/contact" },
+                { label: "About Us", href: "/about" },
+                { label: "Dashboard", href: "/dashboard" }
+              ].map((item) => (
+                <Link key={item.label} href={item.href} className="text-muted-foreground hover:text-primary transition-colors text-sm font-bold uppercase tracking-wider">
+                  {item.label}
                 </Link>
               ))}
             </nav>
@@ -61,7 +65,7 @@ export default function LandingPage() {
                 <>
                   <Link href="/solar">
                     <Button className="bg-primary hover:bg-primary/90 text-white font-bold rounded-lg shadow-[0_0_20px_rgba(236,91,19,0.3)] uppercase tracking-wide">
-                      Dashboard
+                      Take your free assessment!
                     </Button>
                   </Link>
                   <UserButton appearance={{ elements: { avatarBox: "w-9 h-9" } }} />

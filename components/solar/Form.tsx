@@ -20,9 +20,9 @@ export function SolarForm({
   const discoms = ["TANGEDCO", "TSSPDCL", "MSEDCL", "BSES", "TPDDL", "Torrent Power", "Adani", "GESCOM"];
 
   return (
-    <Card className={`shadow-2xl border-0 bg-white/90 backdrop-blur-xl ${className}`}>
+    <Card className={`shadow-2xl border-0 bg-white/90 backdrop-blur-xl text-slate-900 ${className}`}>
       <CardHeader>
-        <CardTitle className="flex items-center gap-3 text-3xl">
+        <CardTitle className="flex items-center gap-3 text-3xl font-black text-slate-900">
           <MapPin className="w-8 h-8 text-orange-500" />
           Property Details
         </CardTitle>
@@ -31,25 +31,25 @@ export function SolarForm({
         {/* Address + PIN */}
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label className="text-xl font-semibold">Full Address</Label>
+            <Label className="text-xl font-bold text-slate-900">Full Address</Label>
             <Input
               id="address"
               placeholder="House number, street, locality..."
               value={formData.address}
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-              className="h-14 text-lg"
+              className="h-14 text-lg text-slate-900 font-medium border-slate-300 placeholder:text-slate-400 bg-white/50"
               required
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-xl font-semibold">PIN Code</Label>
+            <Label className="text-xl font-bold text-slate-900">PIN Code</Label>
             <Input
               id="pincode"
               placeholder="600001"
               maxLength={6}
               value={formData.pincode}
               onChange={(e) => setFormData({ ...formData, pincode: e.target.value })}
-              className="h-14 text-lg"
+              className="h-14 text-lg text-slate-900 font-medium border-slate-300 placeholder:text-slate-400 bg-white/50"
               required
             />
           </div>
@@ -58,36 +58,36 @@ export function SolarForm({
         {/* Roof + Usage */}
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label className="text-lg font-semibold">Roof Area (sqm)</Label>
+            <Label className="text-lg font-bold text-slate-900">Roof Area (sqm)</Label>
             <Input
               id="roofArea"
               type="number"
               placeholder="100"
               value={formData.roofArea}
               onChange={(e) => setFormData({ ...formData, roofArea: e.target.value })}
-              className="h-12"
+              className="h-12 text-slate-900 font-medium border-slate-300 placeholder:text-slate-400 bg-white/50"
             />
           </div>
           <div className="space-y-2">
-            <Label className="text-lg font-semibold">Daily Usage (kWh)</Label>
+            <Label className="text-lg font-bold text-slate-900">Daily Usage (kWh)</Label>
             <Input
               id="dailyUsage"
               type="number"
               placeholder="15"
               value={formData.dailyUsage}
               onChange={(e) => setFormData({ ...formData, dailyUsage: e.target.value })}
-              className="h-12"
+              className="h-12 text-slate-900 font-medium border-slate-300 placeholder:text-slate-400 bg-white/50"
             />
-            <p className="text-xs text-gray-500">AC + appliances daily consumption</p>
+            <p className="text-xs text-slate-600 font-medium">AC + appliances daily consumption</p>
           </div>
         </div>
 
         {/* DISCOM + Building Type */}
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label className="text-lg font-semibold">DISCOM</Label>
+            <Label className="text-lg font-bold text-slate-900">DISCOM</Label>
             <Select value={formData.discom} onValueChange={(v) => setFormData({ ...formData, discom: v })}>
-              <SelectTrigger className="h-12">
+              <SelectTrigger className="h-12 text-slate-900 font-medium border-slate-300 bg-white/50">
                 <SelectValue placeholder="Select DISCOM" />
               </SelectTrigger>
               <SelectContent>
@@ -98,9 +98,9 @@ export function SolarForm({
             </Select>
           </div>
           <div className="space-y-2">
-            <Label className="text-lg font-semibold">Building Type</Label>
+            <Label className="text-lg font-bold text-slate-900">Building Type</Label>
             <Select value={formData.buildingType} onValueChange={(v) => setFormData({ ...formData, buildingType: v })}>
-              <SelectTrigger className="h-12">
+              <SelectTrigger className="h-12 text-slate-900 font-medium border-slate-300 bg-white/50">
                 <SelectValue placeholder="Residential / Commercial" />
               </SelectTrigger>
               <SelectContent>
@@ -115,9 +115,9 @@ export function SolarForm({
         {/* Roof Orientation + Tilt */}
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label className="text-lg font-semibold">Roof Facing</Label>
+            <Label className="text-lg font-bold text-slate-900">Roof Facing</Label>
             <Select value={formData.roofOrientation} onValueChange={(v) => setFormData({ ...formData, roofOrientation: v })}>
-              <SelectTrigger className="h-12">
+              <SelectTrigger className="h-12 text-slate-900 font-medium border-slate-300 bg-white/50">
                 <SelectValue placeholder="Direction" />
               </SelectTrigger>
               <SelectContent>
@@ -128,7 +128,7 @@ export function SolarForm({
             </Select>
           </div>
           <div className="space-y-2">
-            <Label className="text-lg font-semibold">Roof Tilt (°)</Label>
+            <Label className="text-lg font-bold text-slate-900">Roof Tilt (°)</Label>
             <Input
               id="roofTilt"
               type="number"
@@ -137,14 +137,14 @@ export function SolarForm({
               min="0"
               value={formData.roofTilt}
               onChange={(e) => setFormData({ ...formData, roofTilt: e.target.value })}
-              className="h-12"
+              className="h-12 text-slate-900 font-medium border-slate-300 placeholder:text-slate-400 bg-white/50"
             />
           </div>
         </div>
 
         {/* Shadows */}
         <div className="space-y-3">
-          <Label className="text-xl font-semibold">Shadow Analysis</Label>
+          <Label className="text-xl font-bold text-slate-900">Shadow Analysis</Label>
           <div className="space-y-3 p-6 border-2 border-dashed border-orange-200 rounded-2xl bg-orange-50/50">
             <div className="flex items-center space-x-3 p-4 bg-white/70 rounded-xl hover:bg-white transition-all">
               <Checkbox 
@@ -155,7 +155,7 @@ export function SolarForm({
                   shadows: { ...formData.shadows, trees: checked }
                 })}
               />
-              <Label htmlFor="trees" className="cursor-pointer flex items-center gap-2 text-lg font-medium">
+              <Label htmlFor="trees" className="cursor-pointer flex items-center gap-2 text-lg font-bold text-slate-900">
                 🌳 Nearby trees
               </Label>
             </div>
@@ -168,7 +168,7 @@ export function SolarForm({
                   shadows: { ...formData.shadows, buildings: checked }
                 })}
               />
-              <Label htmlFor="buildings" className="cursor-pointer flex items-center gap-2 text-lg font-medium">
+              <Label htmlFor="buildings" className="cursor-pointer flex items-center gap-2 text-lg font-bold text-slate-900">
                 🏢 Tall buildings
               </Label>
             </div>
@@ -181,7 +181,7 @@ export function SolarForm({
                   shadows: { ...formData.shadows, chimneys: checked }
                 })}
               />
-              <Label htmlFor="chimneys" className="cursor-pointer flex items-center gap-2 text-lg font-medium">
+              <Label htmlFor="chimneys" className="cursor-pointer flex items-center gap-2 text-lg font-bold text-slate-900">
                 🏭 Chimneys/Antenna
               </Label>
             </div>
@@ -190,12 +190,12 @@ export function SolarForm({
 
         {/* Notes */}
         <div className="space-y-2">
-          <Label className="text-lg font-semibold">Additional Notes</Label>
+          <Label className="text-lg font-bold text-slate-900">Additional Notes</Label>
           <Textarea
             placeholder="Roof material, structural concerns, special requirements..."
             value={formData.notes}
             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-            className="h-28 resize-none"
+            className="h-28 resize-none text-slate-900 font-medium border-slate-300 placeholder:text-slate-400 bg-white/50"
           />
         </div>
 
