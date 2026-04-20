@@ -10,6 +10,7 @@
 
 import type * as assessments from "../assessments.js";
 import type * as calculate from "../calculate.js";
+import type * as vision from "../vision.js";
 
 import type {
   ApiFromModules,
@@ -20,6 +21,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   assessments: typeof assessments;
   calculate: typeof calculate;
+  vision: typeof vision;
 }>;
 
 /**

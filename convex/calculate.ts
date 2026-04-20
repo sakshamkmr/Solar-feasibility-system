@@ -32,7 +32,14 @@ export const calculateSolar = action({
       trees: v.boolean(),
       buildings: v.boolean(),
       chimneys: v.boolean()
-    })
+    }),
+    rooftopImage: v.optional(v.union(v.string(), v.null())),
+    visionData: v.optional(v.object({
+      usableRoofArea: v.number(),
+      shadowPercentage: v.number(),
+      confidenceScore: v.number(),
+      analysisNotes: v.string()
+    }))
   },
   handler: async (ctx, args) => {
     let lat = 13.05, lon = 80.27; // Chennai default
@@ -92,15 +99,39 @@ export const calculateSolar = action({
     const irradiance = parseFloat(nasaData.properties?.parameter?.ALLSKY_SFC_SW_DWN?.[0] || "5.2");
 
     // ✅ 4. CALCULATIONS
-    const roofArea = args.roofArea || 100;
+    let roofArea = args.roofArea || 100;
     const dailyUsage = args.dailyUsage || 15;
+
+    // Apply Azure Vision confidence-weighted blending for Roof Area
+    if (args.visionData && args.visionData.confidenceScore > 0) {
+      const conf = Math.min(args.visionData.confidenceScore, 1.0);
+      const manualArea = roofArea;
+      const visionArea = args.visionData.usableRoofArea;
+      
+      // Blend: high confidence = trust vision more; low confidence = trust manual more
+      const blendedArea = (manualArea * (1 - conf)) + (visionArea * conf);
+      
+      // Keep result strictly bounded (0.5x to 1.5x) so estimates don't swing unrealistically
+      roofArea = Math.min(Math.max(blendedArea, manualArea * 0.5), manualArea * 1.5);
+      console.log(`👁️ Vision blended roof area: ${manualArea} vs ${visionArea} @ conf ${conf.toFixed(2)} -> ${roofArea.toFixed(1)}`);
+    }
     
     const tiltFactor = args.roofTilt ? Math.min(args.roofTilt / 20, 1.2) : 1.0;
     const orientationFactor = args.roofOrientation === "south" ? 1.0 : 
                              args.roofOrientation === "east-west" ? 0.90 : 0.75;
     
     const shadowCount = [args.shadows.trees, args.shadows.buildings, args.shadows.chimneys].filter(Boolean).length;
-    const shadowFactor = shadowCount === 0 ? 1.0 : shadowCount === 1 ? 0.92 : shadowCount === 2 ? 0.85 : 0.75;
+    let shadowFactor = shadowCount === 0 ? 1.0 : shadowCount === 1 ? 0.92 : shadowCount === 2 ? 0.85 : 0.75;
+
+    // Apply Azure Vision confidence-weighted blending for Shadows
+    if (args.visionData && args.visionData.shadowPercentage >= 0) {
+      // Convert Vision shadow percentage to a retention factor (e.g. 15% shadow -> 0.85 retention)
+      const visionShadowRetention = Math.max(1 - (args.visionData.shadowPercentage / 100), 0.5);
+      const conf = Math.min(args.visionData.confidenceScore, 1.0);
+      
+      shadowFactor = (shadowFactor * (1 - conf)) + (visionShadowRetention * conf);
+      console.log(`👁️ Vision blended shadow factor -> ${shadowFactor.toFixed(3)}`);
+    }
     
     const buildingDerate = args.buildingType === "industrial" ? 0.85 : 
                           args.buildingType === "commercial" ? 0.90 : 0.95;

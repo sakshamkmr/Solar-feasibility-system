@@ -23,7 +23,8 @@ export default function SolarPage() {
     roofTilt: "",
     shadows: { trees: false, buildings: false, chimneys: false },
     notes: "",
-    monthlyBill: ""
+    monthlyBill: "",
+    rooftopImage: null as string | null
   });
   
   const [results, setResults] = useState(null);
@@ -33,6 +34,7 @@ export default function SolarPage() {
   // ✅ FIXED: Both hooks
   const calculateSolarAction = useAction(api.calculate.calculateSolar);
   const saveAssessmentMutation = useMutation(api.assessments.saveAssessment);
+  const analyzeRoofAction = useAction(api.vision.analyzeRoofImage);
 
   const handleCalculate = async () => {
     setLoading(true);
@@ -46,15 +48,39 @@ export default function SolarPage() {
         discom: formData.discom || "TANGEDCO",
         roofOrientation: formData.roofOrientation || "south",
         roofTilt: parseFloat(formData.roofTilt) || 15,
-        shadows: formData.shadows
+        shadows: formData.shadows,
+        rooftopImage: formData.rooftopImage
       };
       
       console.log("🚀 Calculate:", backendPayload);
       
-      // ✅ STEP 1: NASA Calculation
-      const response = await calculateSolarAction(backendPayload);
-      console.log("✅ NASA result:", response);
+      // ✅ STEP 1: Azure Vision Analysis
+      let visionData: any = null;
+      if (backendPayload.rooftopImage) {
+        try {
+          console.log("🔍 Analyzing image with Azure Vision...");
+          const visionResponse = await analyzeRoofAction({ rooftopImage: backendPayload.rooftopImage });
+          if (visionResponse && visionResponse.success) {
+             visionData = visionResponse.data;
+             console.log("✅ Vision result:", visionData);
+          } else {
+             console.error("⚠️ Vision API returned error:", visionResponse?.error);
+          }
+        } catch (visionErr) {
+          console.error("⚠️ Vision API failed:", visionErr);
+        }
+      }
+
+      // Inject vision results so NASA calculator can apply confidence weighting
+      const finalPayload = {
+        ...backendPayload,
+        visionData: visionData || undefined
+      };
       
+      // ✅ STEP 2: NASA Calculation
+      const response = await calculateSolarAction(finalPayload as any);
+      console.log("✅ NASA result:", response);
+
       // ✅ STEP 2: SAVE TO DASHBOARD & GET ID!
       const assessmentId = await saveAssessmentMutation({
         assessment: {
@@ -68,7 +94,14 @@ export default function SolarPage() {
           capex: response.capex,
           netCapex: response.netCapex,
           irradiance: response.irradiance,
-          inputs: backendPayload
+          inputs: backendPayload,
+          rooftopImage: backendPayload.rooftopImage || undefined,
+          ...(visionData && {
+            usableRoofArea: visionData.usableRoofArea,
+            shadowPercentage: visionData.shadowPercentage,
+            confidenceScore: visionData.confidenceScore,
+            analysisNotes: visionData.analysisNotes
+          })
         }
       });
       

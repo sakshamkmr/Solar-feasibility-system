@@ -15,11 +15,27 @@ export const saveAssessment = mutation({
       netCapex: v.number(),
       irradiance: v.number(),
       inputs: v.record(v.string(), v.any()), // ✅ Stores ALL form data!
+      rooftopImage: v.optional(v.string()), // Keep in args for frontend payload checks
+      // Below are optional analysis metric fields kept for future integration
+      usableRoofArea: v.optional(v.number()),
+      shadowPercentage: v.optional(v.number()),
+      confidenceScore: v.optional(v.number()),
+      analysisNotes: v.optional(v.string()),
     })
   },
   handler: async (ctx, args) => {
+    // Isolate properties and strip the Base64 image payload which exceeds the 1 MiB limit
+    const { rooftopImage, inputs, ...rest } = args.assessment;
+    
+    const cleanedInputs = { ...inputs };
+    if (cleanedInputs.rooftopImage) {
+      delete cleanedInputs.rooftopImage; // The base64 copy within inputs array
+    }
+
     return await ctx.db.insert("assessments", { 
-      ...args.assessment, 
+      ...rest,
+      inputs: cleanedInputs,
+      // Intentionally omitting rooftopImage to avoid document size limit errors
       createdAt: Date.now() 
     });
   }

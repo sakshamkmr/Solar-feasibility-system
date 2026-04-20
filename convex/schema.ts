@@ -14,6 +14,11 @@ export default defineSchema({
     netCapex: v.number(),
     irradiance: v.number(),
     inputs: v.record(v.string(), v.any()),
+    rooftopImage: v.optional(v.string()), // TODO: Migrate from Base64 to Convex File Storage for better performance
+    usableRoofArea: v.optional(v.number()),
+    shadowPercentage: v.optional(v.number()),
+    confidenceScore: v.optional(v.number()),
+    analysisNotes: v.optional(v.string()),
     createdAt: v.number()
   })
   .index("by_createdAt", ["createdAt"])
